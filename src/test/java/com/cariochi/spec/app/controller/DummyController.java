@@ -5,8 +5,8 @@ import com.cariochi.spec.Spec.AccessControl;
 import com.cariochi.spec.app.model.DummyEntity;
 import com.cariochi.spec.app.security.AllowedRegions;
 import com.cariochi.spec.app.service.DummyService;
-import com.cariochi.spec.model.ContainsIgnoreCase;
-import com.cariochi.spec.model.In;
+import com.cariochi.spec.operator.ContainsIgnoreCase;
+import com.cariochi.spec.operator.In;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,6 +26,9 @@ public class DummyController {
             @Spec.RequestParam(name = "status", operator = In.class)
             @Spec.RequestParam(name = "name", path = "name", operator = ContainsIgnoreCase.class)
             @Spec.RequestParam(name = "orgId", path = "organization.id")
+            @Spec.RequestParam(name = "labels", operator = In.class)
+            @Spec.RequestParam(name = "propertyKey", path = "properties.key", operator = In.class)
+            @Spec.RequestParam(name = "propertyValue", path = "properties.value", operator = In.class, distinct = true)
             @Spec.RequestHeader(name = "region", path = "organization.region")
             @AccessControl(path = "organization.region", valueSupplier = AllowedRegions.class, operator = In.class)
             Specification<DummyEntity> spec

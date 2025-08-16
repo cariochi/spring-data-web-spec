@@ -1,13 +1,16 @@
 package com.cariochi.spec;
 
-import com.cariochi.spec.model.Equal;
+import com.cariochi.spec.operator.Equal;
+import jakarta.persistence.criteria.JoinType;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.function.Supplier;
+
+import static jakarta.persistence.criteria.JoinType.INNER;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 public @interface Spec {
 
@@ -16,8 +19,8 @@ public @interface Spec {
      * <p>
      * Used for extracting values from the path of a request.
      */
-    @Target(ElementType.PARAMETER)
-    @Retention(RetentionPolicy.RUNTIME)
+    @Target(PARAMETER)
+    @Retention(RUNTIME)
     @Documented
     @Repeatable(PathVariable.Many.class)
     @interface PathVariable {
@@ -42,8 +45,12 @@ public @interface Spec {
          */
         boolean required() default false;
 
-        @Target(ElementType.PARAMETER)
-        @Retention(RetentionPolicy.RUNTIME)
+        boolean distinct() default false;
+
+        JoinType joinType() default INNER;
+
+        @Target(PARAMETER)
+        @Retention(RUNTIME)
         @Documented
         @interface Many {
 
@@ -57,8 +64,8 @@ public @interface Spec {
      * <p>
      * Used for extracting values from the headers of a request.
      */
-    @Target(ElementType.PARAMETER)
-    @Retention(RetentionPolicy.RUNTIME)
+    @Target(PARAMETER)
+    @Retention(RUNTIME)
     @Documented
     @Repeatable(RequestHeader.Many.class)
     @interface RequestHeader {
@@ -83,8 +90,12 @@ public @interface Spec {
          */
         boolean required() default false;
 
-        @Target(ElementType.PARAMETER)
-        @Retention(RetentionPolicy.RUNTIME)
+        boolean distinct() default false;
+
+        JoinType joinType() default INNER;
+
+        @Target(PARAMETER)
+        @Retention(RUNTIME)
         @Documented
         @interface Many {
 
@@ -98,8 +109,8 @@ public @interface Spec {
      * <p>
      * Used for extracting values from the query parameters of a request.
      */
-    @Target(ElementType.PARAMETER)
-    @Retention(RetentionPolicy.RUNTIME)
+    @Target(PARAMETER)
+    @Retention(RUNTIME)
     @Documented
     @Repeatable(RequestParam.Many.class)
     @interface RequestParam {
@@ -124,8 +135,12 @@ public @interface Spec {
          */
         boolean required() default false;
 
-        @Target(ElementType.PARAMETER)
-        @Retention(RetentionPolicy.RUNTIME)
+        boolean distinct() default false;
+
+        JoinType joinType() default INNER;
+
+        @Target(PARAMETER)
+        @Retention(RUNTIME)
         @Documented
         @interface Many {
 
@@ -141,8 +156,8 @@ public @interface Spec {
      * Used for specifying access control logic based on a dynamic value supplied at runtime.
      * </p>
      */
-    @Target(ElementType.PARAMETER)
-    @Retention(RetentionPolicy.RUNTIME)
+    @Target(PARAMETER)
+    @Retention(RUNTIME)
     @Documented
     @Repeatable(AccessControl.Many.class)
     @interface AccessControl {
@@ -167,8 +182,12 @@ public @interface Spec {
          */
         boolean required() default false;
 
-        @Target(ElementType.PARAMETER)
-        @Retention(RetentionPolicy.RUNTIME)
+        boolean distinct() default false;
+
+        JoinType joinType() default INNER;
+
+        @Target(PARAMETER)
+        @Retention(RUNTIME)
         @Documented
         @interface Many {
 
@@ -176,4 +195,5 @@ public @interface Spec {
 
         }
     }
+
 }

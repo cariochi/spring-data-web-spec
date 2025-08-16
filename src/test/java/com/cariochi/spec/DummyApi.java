@@ -31,4 +31,15 @@ public interface DummyApi {
             @RequestParam("name") String name,
             @RequestHeader("region") String region
     );
+
+    @GetMapping("/dummy")
+    List<DummyEntity> findByLabels(
+            @RequestParam("labels") String labels
+    );
+
+    @GetMapping("/dummy")
+    List<DummyEntity> findByProperty(
+            @RequestParam("propertyKey") String propertyKey,
+            @RequestParam("propertyValue") String propertyValue
+    );
 }

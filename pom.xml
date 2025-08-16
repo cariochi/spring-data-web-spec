@@ -6,7 +6,7 @@
 
     <groupId>com.cariochi.spec</groupId>
     <artifactId>spring-data-web-spec</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>spring-data-web-spec</name>
     <description>Annotation-based integration for mapping web request parameters to Spring Data JPA Specifications.</description>
     <url>https://github.com/cariochi/spring-data-web-spec</url>
@@ -38,19 +38,21 @@
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.38</lombok.version>
+        <spring.version>6.2.10</spring.version>
+        <spring-boot.version>3.5.2</spring-boot.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>6.2.10</version>
+            <version>${spring.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
-            <version>3.5.2</version>
+            <version>${spring-boot.version}</version>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -74,13 +76,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <version>3.5.2</version>
+            <version>${spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>3.5.2</version>
+            <version>${spring-boot.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

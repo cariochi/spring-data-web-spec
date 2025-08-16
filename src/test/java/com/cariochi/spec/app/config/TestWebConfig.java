@@ -1,6 +1,6 @@
 package com.cariochi.spec.app.config;
 
-import com.cariochi.spec.SpecArgumentResolver;
+import com.cariochi.spec.web.SpecArgumentResolver;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
