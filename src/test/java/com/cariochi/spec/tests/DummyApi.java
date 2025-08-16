@@ -1,4 +1,4 @@
-package com.cariochi.spec;
+package com.cariochi.spec.tests;
 
 import com.cariochi.recordo.mockmvc.RecordoApiClient;
 import com.cariochi.spec.app.model.DummyEntity;

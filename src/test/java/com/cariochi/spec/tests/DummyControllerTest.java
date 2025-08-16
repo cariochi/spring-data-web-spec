@@ -1,4 +1,4 @@
-package com.cariochi.spec;
+package com.cariochi.spec.tests;
 
 import com.cariochi.recordo.core.Recordo;
 import com.cariochi.recordo.core.RecordoExtension;

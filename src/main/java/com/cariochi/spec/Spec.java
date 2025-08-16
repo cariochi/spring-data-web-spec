@@ -1,6 +1,7 @@
 package com.cariochi.spec;
 
 import com.cariochi.spec.operator.Equal;
+import com.cariochi.spec.operator.SpecOperator;
 import jakarta.persistence.criteria.JoinType;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;

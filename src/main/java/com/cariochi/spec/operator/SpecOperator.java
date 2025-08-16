@@ -1,4 +1,4 @@
-package com.cariochi.spec;
+package com.cariochi.spec.operator;
 
 import com.cariochi.spec.data.SpecContext;
 import org.springframework.data.jpa.domain.Specification;

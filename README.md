@@ -7,6 +7,7 @@ Annotation-based mapping from **web requests** (query parameters, headers, path 
 - Extensible **operator** model (`Equal`, `In`, `ContainsIgnoreCase`, `IsNull`, etc.)
 - Built-in **access control** support via `@Spec.AccessControl` for security-based filters
 - Minimal runtime dependencies
+- **Spring Boot autoconfiguration** and optional `@EnableWebSpec` annotation for easy setup
 
 ---
 
@@ -19,7 +20,7 @@ Annotation-based mapping from **web requests** (query parameters, headers, path 
 <dependency>
     <groupId>com.cariochi.spec</groupId>
     <artifactId>spring-data-web-spec</artifactId>
-    <version>1.0.0</version>
+   <version>1.0.1</version>
 </dependency>
 ```
 
@@ -27,20 +28,25 @@ Annotation-based mapping from **web requests** (query parameters, headers, path 
 
 ### Configuration
 
-Register the argument resolver in your MVC configuration:
+You can register the argument resolver in one of two ways:
 
+#### 1. Spring Boot autoconfiguration (recommended)
+
+If you use **Spring Boot 3.x** and have **spring-data-web-spec** on the classpath, the `SpecArgumentResolver` will be auto-registered.
+Autoconfiguration is enabled by default but can be disabled via:
+
+```properties
+cariochi.spec.web.enabled=false
+```
+
+#### 2. Manual registration via @EnableWebSpec
+
+If you don’t want to rely on **autoconfiguration** (or you use plain **Spring MVC without Boot**), annotate your configuration class:
 ```java
 
+@EnableWebSpec
 @Configuration
-@RequiredArgsConstructor
-class WebConfig implements WebMvcConfigurer {
-
-    private final AutowireCapableBeanFactory beanFactory;
-
-    @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(new SpecArgumentResolver(beanFactory));
-    }
+public class WebConfig {
 }
 ```
 
@@ -61,6 +67,7 @@ class DummyController {
             @Spec.RequestParam(name = "status", operator = In.class)
             @Spec.RequestParam(name = "name", path = "name", operator = ContainsIgnoreCase.class)
             @Spec.RequestHeader(name = "region", path = "organization.region")
+            @Spec.RequestParam(name = "propertyValue", path = "properties.value", operator = In.class, joinType = JoinType.INNER, distinct = true)
             @Spec.AccessControl(path = "organization.region", valueSupplier = AllowedRegions.class, operator = In.class)
             Specification<DummyEntity> specification
     ) {
@@ -71,16 +78,18 @@ class DummyController {
 
 ## How it works
 
-1. Annotate a Specification<T> method parameter with one or more source annotations:
-   • @Spec.RequestParam — query parameter
-   • @Spec.RequestHeader — HTTP header
-   • @Spec.PathVariable — URI path variable
-   • @Spec.AccessControl — security-based, no request value needed
+1. Annotate a `Specification<T>` method parameter with one or more source annotations:
+   - `@Spec.RequestParam` — query parameter
+   - `@Spec.RequestHeader` — HTTP header
+   - `@Spec.PathVariable` — URI path variable
+   - `@Spec.AccessControl` — security-based, no request value needed
 
-2. SpecArgumentResolver:
-   • Reads the values from the HTTP request or security context.
-   • Converts them using Spring’s ConversionService.
-   • Passes them to the chosen operator.
+
+2. `SpecArgumentResolver`:
+   - Reads the values from the HTTP request or security context.
+   - Converts them using **Spring’s ConversionService**.
+   - Passes them to the chosen operator.
+
 
 3. An operator implements:
 
@@ -90,11 +99,7 @@ class DummyController {
    }
    ```
 
-4. SpecContext provides:
-   • JPA path resolution: `ctx.path(root)`
-   • Type-safe value conversion: `ctx.valueOf(...)`, `ctx.collectionOf(...)`
-
-5. All generated specifications are combined with AND logic.
+4. All generated specifications are combined with **AND** logic.
 
 ---
 

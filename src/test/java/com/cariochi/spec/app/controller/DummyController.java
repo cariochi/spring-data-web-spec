@@ -7,6 +7,7 @@ import com.cariochi.spec.app.security.AllowedRegions;
 import com.cariochi.spec.app.service.DummyService;
 import com.cariochi.spec.operator.ContainsIgnoreCase;
 import com.cariochi.spec.operator.In;
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,7 +29,7 @@ public class DummyController {
             @Spec.RequestParam(name = "orgId", path = "organization.id")
             @Spec.RequestParam(name = "labels", operator = In.class)
             @Spec.RequestParam(name = "propertyKey", path = "properties.key", operator = In.class)
-            @Spec.RequestParam(name = "propertyValue", path = "properties.value", operator = In.class, distinct = true)
+            @Spec.RequestParam(name = "propertyValue", path = "properties.value", operator = In.class, joinType = JoinType.INNER, distinct = true)
             @Spec.RequestHeader(name = "region", path = "organization.region")
             @AccessControl(path = "organization.region", valueSupplier = AllowedRegions.class, operator = In.class)
             Specification<DummyEntity> spec
