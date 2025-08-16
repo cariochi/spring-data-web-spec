@@ -1,11 +1,14 @@
-package com.cariochi.spec;
+package com.cariochi.spec.web;
 
 import com.cariochi.reflecto.types.ReflectoType;
 import com.cariochi.spec.Spec.AccessControl;
 import com.cariochi.spec.Spec.PathVariable;
 import com.cariochi.spec.Spec.RequestHeader;
 import com.cariochi.spec.Spec.RequestParam;
-import com.cariochi.spec.SpecOperator.SpecContext;
+import com.cariochi.spec.data.MetaPathResolver;
+import com.cariochi.spec.data.SpecContext;
+import com.cariochi.spec.data.SpecPath;
+import com.cariochi.spec.data.SpecValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import static com.cariochi.reflecto.Reflecto.reflect;
 import static java.lang.String.join;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.web.context.request.RequestAttributes.SCOPE_REQUEST;
 import static org.springframework.web.servlet.HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE;
@@ -46,22 +50,27 @@ public class SpecArgumentResolver implements HandlerMethodArgumentResolver {
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
 
-        ConversionService cs = binderFactory.createBinder(webRequest, null, "spring-data-spec").getConversionService();
+        ConversionService conversionService = binderFactory.createBinder(webRequest, null, "spring-data-spec").getConversionService();
 
         List<Specification<Object>> specs = new ArrayList<>();
 
         // 1) query params
-        for (RequestParam qp : getRequestParams(parameter)) {
-            String[] rawValues = webRequest.getParameterValues(qp.name());
+        for (RequestParam param : getRequestParams(parameter)) {
+            String[] rawValues = webRequest.getParameterValues(param.name());
             if (rawValues == null) {
-                if (qp.required()) {
-                    throw new IllegalArgumentException("Required request parameter '" + qp.name() + "' is missing");
+                if (param.required()) {
+                    throw new IllegalArgumentException("Required request parameter '" + param.name() + "' is missing");
                 }
                 continue;
             }
             String raw = join(",", rawValues);
-            String path = isNotBlank(qp.path()) ? qp.path() : qp.name();
-            specs.add(buildSpecification(path, raw, qp.operator(), cs));
+
+            String path = isNotBlank(param.path()) ? param.path() : param.name();
+            var specPath = new SpecPath<>(path, new MetaPathResolver<>(param.joinType()));
+            var specValue = new SpecValue<>(typeDescriptor -> conversionService.convert(raw, typeDescriptor));
+            var context = new SpecContext<>(specPath, specValue, param.distinct());
+            var specification = getBean(param.operator()).getSpecification(context);
+            specs.add(specification);
         }
 
         // 2) path variables
@@ -69,42 +78,54 @@ public class SpecArgumentResolver implements HandlerMethodArgumentResolver {
         if (uriVars == null) {
             uriVars = Map.of();
         }
-        for (PathVariable pv : getPathVariables(parameter)) {
-            String raw = uriVars.get(pv.name());
-            if (raw == null) {
-                if (pv.required()) {
-                    throw new IllegalArgumentException("Required path variable '" + pv.name() + "' is missing");
+        for (PathVariable variable : getPathVariables(parameter)) {
+            String raw = uriVars.get(variable.name());
+            if (isEmpty(raw)) {
+                if (variable.required()) {
+                    throw new IllegalArgumentException("Required path variable '" + variable.name() + "' is missing");
                 }
                 continue;
             }
-            String path = isNotBlank(pv.path()) ? pv.path() : pv.name();
-            specs.add(buildSpecification(path, raw, pv.operator(), cs));
+            String path = isNotBlank(variable.path()) ? variable.path() : variable.name();
+            var specPath = new SpecPath<>(path, new MetaPathResolver<>(variable.joinType()));
+            var specValue = new SpecValue<>(typeDescriptor -> conversionService.convert(raw, typeDescriptor));
+            var context = new SpecContext<>(specPath, specValue, variable.distinct());
+            var specification = getBean(variable.operator()).getSpecification(context);
+            specs.add(specification);
         }
 
         // 3) headers
-        for (RequestHeader h : getHeaders(parameter)) {
-            String[] rawValues = webRequest.getHeaderValues(h.name());
+        for (RequestHeader header : getHeaders(parameter)) {
+            String[] rawValues = webRequest.getHeaderValues(header.name());
             if (rawValues == null) {
-                if (h.required()) {
-                    throw new IllegalArgumentException("Required header '" + h.name() + "' is missing");
+                if (header.required()) {
+                    throw new IllegalArgumentException("Required header '" + header.name() + "' is missing");
                 }
                 continue;
             }
             String raw = join(",", rawValues);
-            String path = isNotBlank(h.path()) ? h.path() : h.name();
-            specs.add(buildSpecification(path, raw, h.operator(), cs));
+            String path = isNotBlank(header.path()) ? header.path() : header.name();
+            var specPath = new SpecPath<>(path, new MetaPathResolver<>(header.joinType()));
+            var specValue = new SpecValue<>(typeDescriptor -> conversionService.convert(raw, typeDescriptor));
+            var context = new SpecContext<>(specPath, specValue, header.distinct());
+            var specification = getBean(header.operator()).getSpecification(context);
+            specs.add(specification);
         }
 
         // 4) security context
-        for (AccessControl sc : getAccessControls(parameter)) {
-            Object value = getBean(sc.valueSupplier()).get();
+        for (AccessControl accessControl : getAccessControls(parameter)) {
+            Object value = getBean(accessControl.valueSupplier()).get();
             if (value == null) {
-                if (sc.required()) {
+                if (accessControl.required()) {
                     throw new IllegalArgumentException("Required access control value is missing");
                 }
                 continue;
             }
-            specs.add(buildSpecification(sc.path(), value, sc.operator(), cs));
+            var specPath = new SpecPath<>(accessControl.path(), new MetaPathResolver<>(accessControl.joinType()));
+            var specValue = new SpecValue<>(typeDescriptor -> value);
+            var context = new SpecContext<>(specPath, specValue, accessControl.distinct());
+            var specification = getBean(accessControl.operator()).getSpecification(context);
+            specs.add(specification);
         }
 
         Optional<Specification<Object>> specOptional = specs.stream().reduce(Specification::and);
@@ -116,15 +137,6 @@ public class SpecArgumentResolver implements HandlerMethodArgumentResolver {
             return specOptional.orElse(null);
         }
         throw new IllegalArgumentException("Unsupported parameter type: " + parameter.getParameterType());
-    }
-
-    private <T, Y, V> Specification<T> buildSpecification(String path,
-                                                          Object value,
-                                                          Class<? extends SpecOperator> operatorType,
-                                                          ConversionService conversionService) {
-        final SpecOperator<T, Y, V> operator = getBean(operatorType);
-        final SpecContext<T, Y, V> context = new SpecContext<>(path, typeDescriptor -> (V) conversionService.convert(value, typeDescriptor));
-        return operator.buildSpecification(context);
     }
 
     private <T> T getBean(Class<T> operatorType) {

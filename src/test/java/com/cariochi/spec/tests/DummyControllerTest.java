@@ -1,4 +1,4 @@
-package com.cariochi.spec;
+package com.cariochi.spec.tests;
 
 import com.cariochi.recordo.core.Recordo;
 import com.cariochi.recordo.core.RecordoExtension;
@@ -23,7 +23,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
 @ActiveProfiles("test")
 @ExtendWith(RecordoExtension.class)
 @Sql(scripts = "classpath:dummy-data.sql", executionPhase = BEFORE_TEST_CLASS)
-class ControllerDummyTest {
+class DummyControllerTest {
 
     private final DummyApi api = Recordo.create(DummyApi.class);
 
@@ -75,5 +75,21 @@ class ControllerDummyTest {
         assertThat(entities).hasSize(2)
                 .extracting(DummyEntity::getStatus)
                 .containsOnly(STOPPED, FAILED);
+    }
+
+    @Test
+    void should_find_by_labels() {
+        final List<DummyEntity> entities = api.findByLabels("urgent,beta");
+        assertThat(entities).hasSize(2)
+                .extracting(DummyEntity::getId)
+                .containsOnly(101L, 103L);
+    }
+
+    @Test
+    void should_find_by_properties() {
+        final List<DummyEntity> entities = api.findByProperty("color", "red,blue");
+        assertThat(entities).hasSize(2)
+                .extracting(DummyEntity::getId)
+                .containsOnly(101L, 103L);
     }
 }

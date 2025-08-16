@@ -1,4 +1,4 @@
-package com.cariochi.spec;
+package com.cariochi.spec.tests;
 
 import com.cariochi.recordo.mockmvc.RecordoApiClient;
 import com.cariochi.spec.app.model.DummyEntity;
@@ -30,5 +30,16 @@ public interface DummyApi {
             @RequestParam("status") List<DummyEntity.Status> status,
             @RequestParam("name") String name,
             @RequestHeader("region") String region
+    );
+
+    @GetMapping("/dummy")
+    List<DummyEntity> findByLabels(
+            @RequestParam("labels") String labels
+    );
+
+    @GetMapping("/dummy")
+    List<DummyEntity> findByProperty(
+            @RequestParam("propertyKey") String propertyKey,
+            @RequestParam("propertyValue") String propertyValue
     );
 }
