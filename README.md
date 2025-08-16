@@ -39,7 +39,7 @@ Autoconfiguration is enabled by default but can be disabled via:
 cariochi.spec.web.enabled=false
 ```
 
-#### 2. Manual registration via @EnableWebSpec
+#### 2. Manual registration via `@EnableWebSpec`
 
 If you don’t want to rely on **autoconfiguration** (or you use plain **Spring MVC without Boot**), annotate your configuration class:
 ```java
