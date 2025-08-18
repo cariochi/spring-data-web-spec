@@ -20,7 +20,7 @@ Annotation-based mapping from **web requests** (query parameters, headers, path 
 <dependency>
     <groupId>com.cariochi.spec</groupId>
     <artifactId>spring-data-web-spec</artifactId>
-   <version>1.0.1</version>
+   <version>1.0.2</version>
 </dependency>
 ```
 
