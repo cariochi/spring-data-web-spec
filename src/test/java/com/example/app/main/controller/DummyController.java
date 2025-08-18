@@ -1,18 +1,19 @@
-package com.cariochi.spec.app.controller;
+package com.example.app.main.controller;
 
 import com.cariochi.spec.Spec;
 import com.cariochi.spec.Spec.AccessControl;
-import com.cariochi.spec.app.model.DummyEntity;
-import com.cariochi.spec.app.security.AllowedRegions;
-import com.cariochi.spec.app.service.DummyService;
 import com.cariochi.spec.operator.ContainsIgnoreCase;
 import com.cariochi.spec.operator.In;
-import jakarta.persistence.criteria.JoinType;
+import com.example.app.main.model.DummyEntity;
+import com.example.app.main.security.AllowedRegions;
+import com.example.app.main.service.DummyService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static jakarta.persistence.criteria.JoinType.INNER;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,8 +29,9 @@ public class DummyController {
             @Spec.RequestParam(name = "name", path = "name", operator = ContainsIgnoreCase.class)
             @Spec.RequestParam(name = "orgId", path = "organization.id")
             @Spec.RequestParam(name = "labels", operator = In.class)
+            @Spec.RequestParam(name = "labels2", path = "labels", operator = In.class)
             @Spec.RequestParam(name = "propertyKey", path = "properties.key", operator = In.class)
-            @Spec.RequestParam(name = "propertyValue", path = "properties.value", operator = In.class, joinType = JoinType.INNER, distinct = true)
+            @Spec.RequestParam(name = "propertyValue", path = "properties.value", operator = In.class, joinType = INNER, distinct = true)
             @Spec.RequestHeader(name = "region", path = "organization.region")
             @AccessControl(path = "organization.region", valueSupplier = AllowedRegions.class, operator = In.class)
             Specification<DummyEntity> spec

@@ -1,7 +1,7 @@
-package com.cariochi.spec.tests;
+package com.example.app.tests;
 
 import com.cariochi.recordo.mockmvc.RecordoApiClient;
-import com.cariochi.spec.app.model.DummyEntity;
+import com.example.app.main.model.DummyEntity;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +34,8 @@ public interface DummyApi {
 
     @GetMapping("/dummy")
     List<DummyEntity> findByLabels(
-            @RequestParam("labels") String labels
+            @RequestParam("labels") String labels,
+            @RequestParam("labels2") String labels2
     );
 
     @GetMapping("/dummy")

@@ -1,12 +1,11 @@
 package com.cariochi.spec.data;
 
 import java.util.List;
-import java.util.function.Function;
 import org.springframework.core.convert.TypeDescriptor;
 
 import static org.springframework.core.convert.TypeDescriptor.collection;
 
-public record SpecValue<V>(Function<TypeDescriptor, V> value) {
+public record SpecValue<V>(Object raw, ValueConverter<V> converter) {
 
     public V convertTo(Class<?> type) {
         return convertTo(TypeDescriptor.valueOf(type));
@@ -17,6 +16,6 @@ public record SpecValue<V>(Function<TypeDescriptor, V> value) {
     }
 
     public V convertTo(TypeDescriptor typeDescriptor) {
-        return value.apply(typeDescriptor);
+        return converter.convert(raw, typeDescriptor);
     }
 }

@@ -5,7 +5,7 @@ import com.cariochi.spec.Spec.AccessControl;
 import com.cariochi.spec.Spec.PathVariable;
 import com.cariochi.spec.Spec.RequestHeader;
 import com.cariochi.spec.Spec.RequestParam;
-import com.cariochi.spec.data.MetaPathResolver;
+import com.cariochi.spec.data.PathResolver;
 import com.cariochi.spec.data.SpecContext;
 import com.cariochi.spec.data.SpecPath;
 import com.cariochi.spec.data.SpecValue;
@@ -52,7 +52,8 @@ public class SpecArgumentResolver implements HandlerMethodArgumentResolver {
 
         ConversionService conversionService = binderFactory.createBinder(webRequest, null, "spring-data-spec").getConversionService();
 
-        List<Specification<Object>> specs = new ArrayList<>();
+        List<Specification<Object>> specifications = new ArrayList<>();
+        PathResolver<Object, Object> pathResolver = getBean(PathResolver.class);
 
         // 1) query params
         for (RequestParam param : getRequestParams(parameter)) {
@@ -66,11 +67,12 @@ public class SpecArgumentResolver implements HandlerMethodArgumentResolver {
             String raw = join(",", rawValues);
 
             String path = isNotBlank(param.path()) ? param.path() : param.name();
-            var specPath = new SpecPath<>(path, new MetaPathResolver<>(param.joinType()));
-            var specValue = new SpecValue<>(typeDescriptor -> conversionService.convert(raw, typeDescriptor));
+            var specPath = new SpecPath<>(path, param.joinType(), pathResolver);
+
+            var specValue = new SpecValue<>(raw, conversionService::convert);
             var context = new SpecContext<>(specPath, specValue, param.distinct());
             var specification = getBean(param.operator()).getSpecification(context);
-            specs.add(specification);
+            specifications.add(specification);
         }
 
         // 2) path variables
@@ -87,11 +89,11 @@ public class SpecArgumentResolver implements HandlerMethodArgumentResolver {
                 continue;
             }
             String path = isNotBlank(variable.path()) ? variable.path() : variable.name();
-            var specPath = new SpecPath<>(path, new MetaPathResolver<>(variable.joinType()));
-            var specValue = new SpecValue<>(typeDescriptor -> conversionService.convert(raw, typeDescriptor));
+            var specPath = new SpecPath<>(path, variable.joinType(), pathResolver);
+            var specValue = new SpecValue<>(raw, conversionService::convert);
             var context = new SpecContext<>(specPath, specValue, variable.distinct());
             var specification = getBean(variable.operator()).getSpecification(context);
-            specs.add(specification);
+            specifications.add(specification);
         }
 
         // 3) headers
@@ -105,11 +107,11 @@ public class SpecArgumentResolver implements HandlerMethodArgumentResolver {
             }
             String raw = join(",", rawValues);
             String path = isNotBlank(header.path()) ? header.path() : header.name();
-            var specPath = new SpecPath<>(path, new MetaPathResolver<>(header.joinType()));
-            var specValue = new SpecValue<>(typeDescriptor -> conversionService.convert(raw, typeDescriptor));
+            var specPath = new SpecPath<>(path, header.joinType(), pathResolver);
+            var specValue = new SpecValue<>(raw, conversionService::convert);
             var context = new SpecContext<>(specPath, specValue, header.distinct());
             var specification = getBean(header.operator()).getSpecification(context);
-            specs.add(specification);
+            specifications.add(specification);
         }
 
         // 4) security context
@@ -121,14 +123,14 @@ public class SpecArgumentResolver implements HandlerMethodArgumentResolver {
                 }
                 continue;
             }
-            var specPath = new SpecPath<>(accessControl.path(), new MetaPathResolver<>(accessControl.joinType()));
-            var specValue = new SpecValue<>(typeDescriptor -> value);
+            var specPath = new SpecPath<>(accessControl.path(), accessControl.joinType(), pathResolver);
+            var specValue = new SpecValue<>(value, (source, type) -> source);
             var context = new SpecContext<>(specPath, specValue, accessControl.distinct());
             var specification = getBean(accessControl.operator()).getSpecification(context);
-            specs.add(specification);
+            specifications.add(specification);
         }
 
-        Optional<Specification<Object>> specOptional = specs.stream().reduce(Specification::and);
+        Optional<Specification<Object>> specOptional = specifications.stream().reduce(Specification::and);
 
         ReflectoType type = reflect(parameter.getGenericParameterType());
         if (type.is(Optional.class) && type.arguments().list().getFirst().is(Specification.class)) {

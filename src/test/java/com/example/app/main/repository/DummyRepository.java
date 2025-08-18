@@ -1,6 +1,6 @@
-package com.cariochi.spec.app.repository;
+package com.example.app.main.repository;
 
-import com.cariochi.spec.app.model.DummyEntity;
+import com.example.app.main.model.DummyEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

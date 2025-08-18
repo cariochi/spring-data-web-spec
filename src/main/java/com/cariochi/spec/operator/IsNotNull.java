@@ -4,9 +4,7 @@ import com.cariochi.spec.data.SpecPath;
 import com.cariochi.spec.data.SpecValue;
 import jakarta.persistence.criteria.Path;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
 
-@Component
 public class IsNotNull<T, Y> implements BaseOperator<T, Y, Boolean> {
 
     @Override

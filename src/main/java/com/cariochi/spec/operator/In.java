@@ -5,9 +5,7 @@ import com.cariochi.spec.data.SpecValue;
 import jakarta.persistence.criteria.Path;
 import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
 
-@Component
 public class In<T, Y> implements BaseOperator<T, Y, List<Y>> {
 
     @Override

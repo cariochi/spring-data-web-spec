@@ -1,6 +1,6 @@
-package com.cariochi.spec.app.security;
+package com.example.app.main.security;
 
-import com.cariochi.spec.app.service.UserService;
+import com.example.app.main.service.UserService;
 import java.util.List;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;

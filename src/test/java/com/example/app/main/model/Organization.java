@@ -1,4 +1,4 @@
-package com.cariochi.spec.app.model;
+package com.example.app.main.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

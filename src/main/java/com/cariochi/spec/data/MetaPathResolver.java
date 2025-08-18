@@ -1,6 +1,7 @@
 package com.cariochi.spec.data;
 
 import jakarta.persistence.criteria.From;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.MapJoin;
 import jakarta.persistence.criteria.Path;
@@ -11,31 +12,27 @@ import jakarta.persistence.metamodel.MapAttribute;
 import jakarta.persistence.metamodel.PluralAttribute;
 import jakarta.persistence.metamodel.SingularAttribute;
 import jakarta.persistence.metamodel.Type;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.split;
 
 @RequiredArgsConstructor
-public final class MetaPathResolver<T, Y> implements BiFunction<Root<T>, String, Path<Y>> {
-
-    private final JoinType joinType;
+public final class MetaPathResolver<T, Y> implements PathResolver<T, Y> {
 
     @Override
-    public Path<Y> apply(Root<T> root, String dottedPath) {
+    public Path<Y> resolve(Root<T> root, String dottedPath, JoinType joinType) {
 
         String[] fields = split(dottedPath, '.');
         From<?, ?> from = root;
         Path<?> path = root;
         ManagedType<?> type = root.getModel();
 
-        JoinsCache joinsCache = new JoinsCache();
 
         for (int i = 0; i < fields.length; i++) {
+
+            final From<?, ?> finalFrom = from;
 
             final String field = fields[i];
             if (isBlank(field)) {
@@ -49,19 +46,22 @@ public final class MetaPathResolver<T, Y> implements BiFunction<Root<T>, String,
             final Attribute<?, ?> attr = getAttribute(type, field);
 
             if (attr instanceof MapAttribute<?, ?, ?> mapAttr) {
-                MapJoin<?, ?, ?> mapJoin = (MapJoin<?, ?, ?>) joinsCache.get(from, field, (f, n) -> f.joinMap(n, joinType));
+
+                MapJoin<?, ?, ?> join = findJoin(joinType, from, attr)
+                        .map(MapJoin.class::cast)
+                        .orElseGet(() -> finalFrom.joinMap(field, joinType));
 
                 String next = (i + 1 < fields.length) ? fields[i + 1] : null;
 
                 if ("key".equals(next)) {
-                    path = mapJoin.key();
+                    path = join.key();
                     type = mapAttr.getKeyType() instanceof ManagedType<?> managed ? managed : null;
                     i++;
                 } else {
-                    path = mapJoin.value();
+                    path = join.value();
                     type = mapAttr.getElementType() instanceof ManagedType<?> managed ? managed : null;
                     if (type != null) {
-                        from = mapJoin;
+                        from = join;
                     }
                     if ("value".equals(next)) {
                         i++;
@@ -75,14 +75,24 @@ public final class MetaPathResolver<T, Y> implements BiFunction<Root<T>, String,
                     path = path.get(field);
                 }
                 case ONE_TO_MANY, MANY_TO_MANY, ELEMENT_COLLECTION -> {
-                    from = joinsCache.get(from, field, (f, n) -> f.join(n, joinType));
+                    from = findJoin(joinType, from, attr)
+                            .map(Join.class::cast)
+                            .orElseGet(() -> finalFrom.join(field, joinType));
                     path = from;
                 }
             }
+
             type = getManagedType(attr);
         }
 
         return (Path<Y>) path;
+    }
+
+    private static Optional<? extends Join<?, ?>> findJoin(JoinType joinType, From<?, ?> from, Attribute<?, ?> attr) {
+        return from.getJoins().stream()
+                .filter(join -> join.getAttribute().equals(attr))
+                .filter(join -> joinType.equals(join.getJoinType()))
+                .findAny();
     }
 
     private static Attribute<?, ?> getAttribute(ManagedType<?> type, String name) {
@@ -103,16 +113,4 @@ public final class MetaPathResolver<T, Y> implements BiFunction<Root<T>, String,
     }
 
 
-    private static class JoinsCache {
-
-        private final Map<From<?, ?>, Map<String, From<?, ?>>> cache = new IdentityHashMap<>();
-
-        public From<?, ?> get(From<?, ?> from,
-                              String attrName,
-                              BiFunction<From<?, ?>, String, From<?, ?>> supplier) {
-            return cache
-                    .computeIfAbsent(from, f -> new HashMap<>())
-                    .computeIfAbsent(attrName, k -> supplier.apply(from, attrName));
-        }
-    }
 }

@@ -6,7 +6,7 @@
 
     <groupId>com.cariochi.spec</groupId>
     <artifactId>spring-data-web-spec</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <name>spring-data-web-spec</name>
     <description>Annotation-based integration for mapping web request parameters to Spring Data JPA Specifications.</description>
     <url>https://github.com/cariochi/spring-data-web-spec</url>

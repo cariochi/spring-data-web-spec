@@ -1,7 +1,7 @@
-package com.cariochi.spec.app.service;
+package com.example.app.main.service;
 
-import com.cariochi.spec.app.repository.DummyRepository;
-import com.cariochi.spec.app.model.DummyEntity;
+import com.example.app.main.model.DummyEntity;
+import com.example.app.main.repository.DummyRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;

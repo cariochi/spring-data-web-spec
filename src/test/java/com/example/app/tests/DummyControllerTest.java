@@ -1,10 +1,10 @@
-package com.cariochi.spec.tests;
+package com.example.app.tests;
 
 import com.cariochi.recordo.core.Recordo;
 import com.cariochi.recordo.core.RecordoExtension;
-import com.cariochi.spec.app.TestApp;
-import com.cariochi.spec.app.model.DummyEntity;
-import com.cariochi.spec.app.model.Organization;
+import com.example.app.main.TestApp;
+import com.example.app.main.model.DummyEntity;
+import com.example.app.main.model.Organization;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,8 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
-import static com.cariochi.spec.app.model.DummyEntity.Status.FAILED;
-import static com.cariochi.spec.app.model.DummyEntity.Status.STOPPED;
+import static com.example.app.main.model.DummyEntity.Status.FAILED;
+import static com.example.app.main.model.DummyEntity.Status.STOPPED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_CLASS;
 
@@ -79,7 +79,7 @@ class DummyControllerTest {
 
     @Test
     void should_find_by_labels() {
-        final List<DummyEntity> entities = api.findByLabels("urgent,beta");
+        final List<DummyEntity> entities = api.findByLabels("urgent,beta", "urgent,beta");
         assertThat(entities).hasSize(2)
                 .extracting(DummyEntity::getId)
                 .containsOnly(101L, 103L);

@@ -1,4 +1,4 @@
-package com.cariochi.spec.app.service;
+package com.example.app.main.service;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
