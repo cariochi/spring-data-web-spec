@@ -54,25 +54,30 @@ public class WebConfig {
 
 ```java
 
+import java.awt.print.Pageable;
+
 @RestController
 @RequiredArgsConstructor
 class DummyController {
 
-    private final DummyService service;
+   private final DummyService service;
+   private final DummyMapper mapper;
 
-    @GetMapping("/organizations/{organizationId}/dummy")
-    public List<DummyEntity> findAll(
-            @Spec.PathVariable(name = "organizationId", path = "organization.id", required = true)
-            @Spec.RequestParam(name = "id")
-            @Spec.RequestParam(name = "status", operator = In.class)
-            @Spec.RequestParam(name = "name", path = "name", operator = ContainsIgnoreCase.class)
-            @Spec.RequestHeader(name = "region", path = "organization.region")
-            @Spec.RequestParam(name = "propertyValue", path = "properties.value", operator = In.class, joinType = JoinType.INNER, distinct = true)
-            @Spec.AccessControl(path = "organization.region", valueSupplier = AllowedRegions.class, operator = In.class)
-            Specification<DummyEntity> specification
-    ) {
-        return service.findAll(specification);
-    }
+   @GetMapping("/organizations/{organizationId}/dummy")
+   public Page<DummyDto> findAll(
+           @Spec.PathVariable(name = "organizationId", path = "organization.id", required = true)
+           @Spec.RequestParam(name = "id")
+           @Spec.RequestParam(name = "status", operator = In.class)
+           @Spec.RequestParam(name = "name", path = "name", operator = ContainsIgnoreCase.class)
+           @Spec.RequestParam(name = "propertyValue", path = "properties.value", operator = In.class, joinType = JoinType.INNER, distinct = true)
+           @Spec.RequestHeader(name = "region", path = "organization.region")
+           @Spec.AccessControl(path = "organization.region", valueSupplier = UserAllowedRegions.class, operator = In.class)
+           Specification<DummyEntity> specification,
+           Pageable pageable
+   ) {
+      return service.findAll(specification, pageable)
+              .map(mapper::toDto);
+   }
 }
 ```
 
@@ -112,7 +117,7 @@ class DummyController {
 - **IsNull**, **IsNotNull**
 - **GreaterThan**, **GreaterThanOrEqualTo**, **LessThan**, **LessThanOrEqualTo**
 
-You can also implement custom operators.
+**You can also implement custom operators.**
 
 ---
 
@@ -122,21 +127,25 @@ Use `@Spec.AccessControl` for filters without request input, e.g., enforcing use
 
 **Example:**
 
+Value Supplier can be a `Supplier<List<String>>` that returns the allowed regions for the current user:
 ```java
-
 @Component
 @RequiredArgsConstructor
-class AllowedRegions implements Supplier<List<String>> {
+class UserAllowedRegions implements Supplier<List<String>> {
 
     private final UserService userService;
 
     @Override
     public List<String> get() {
-        return userService.getAllowedRegions();
+       return userService.getUserAllowedRegions();
     }
 }
+```
 
-@Spec.AccessControl(path = "organization.region", valueSupplier = AllowedRegions.class, operator = In.class)
+Usage example:
+
+```java
+@Spec.AccessControl(path = "organization.region", valueSupplier = UserAllowedRegions.class, operator = In.class)
 ```
 
 This will automatically restrict queries to allowed regions for the current user.
