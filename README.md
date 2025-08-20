@@ -20,7 +20,7 @@ Annotation-based mapping from **web requests** (query parameters, headers, path 
 <dependency>
     <groupId>com.cariochi.spec</groupId>
     <artifactId>spring-data-web-spec</artifactId>
-   <version>1.0.2</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -42,6 +42,7 @@ cariochi.spec.web.enabled=false
 #### 2. Manual registration via `@EnableWebSpec`
 
 If you don’t want to rely on **autoconfiguration** (or you use plain **Spring MVC without Boot**), annotate your configuration class:
+
 ```java
 
 @EnableWebSpec
@@ -54,54 +55,44 @@ public class WebConfig {
 
 ```java
 
-import com.cariochi.spec.Spec;
-import com.cariochi.spec.operator.ContainsIgnoreCase;
-import jakarta.persistence.criteria.JoinType;
-import java.awt.print.Pageable;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 @RestController
 @RequiredArgsConstructor
 class DummyController {
 
-   private final DummyService service;
-   private final DummyMapper mapper;
+    private final DummyService service;
+    private final DummyMapper mapper;
 
-   @GetMapping("/organizations/{organizationId}/dummy")
-   public Page<DummyDto> findAll(
-           @Spec.PathVariable(name = "organizationId", path = "organization.id", required = true)
-           @Spec.RequestParam(name = "id")
-           @Spec.RequestParam(name = "status", operator = In.class)
-           @Spec.RequestParam(name = "name", operator = ContainsIgnoreCase.class)
-           @Spec.RequestParam(name = "propertyValue", path = "properties.value", joinType = JoinType.INNER, operator = In.class, distinct = true)
-           @Spec.RequestHeader(name = "region", path = "organization.region")
-           @Spec.AccessControl(path = "organization.region", valueSupplier = UserAllowedRegions.class, operator = In.class)
-           Specification<DummyEntity> specification,
-           Pageable pageable
-   ) {
-      return service.findAll(specification, pageable)
-              .map(mapper::toDto);
-   }
+    @GetMapping("/organizations/{organizationId}/dummy")
+    public Page<DummyDto> findAll(
+            @Spec.PathVariable(name = "organizationId", path = "organization.id", required = true)
+            @Spec.RequestParam(name = "id")
+            @Spec.RequestParam(name = "status", operator = In.class)
+            @Spec.RequestParam(name = "name", operator = ContainsIgnoreCase.class)
+            @Spec.RequestParam(name = "propertyValue", path = "properties.value", joinType = JoinType.INNER, operator = In.class, distinct = true)
+            @Spec.RequestHeader(name = "region", path = "organization.region")
+            @Spec.AccessControl(path = "organization.region", valueSupplier = UserAllowedRegions.class, operator = In.class)
+            Specification<DummyEntity> specification,
+            Pageable pageable
+    ) {
+        return service.findAll(specification, pageable)
+                .map(mapper::toDto);
+    }
 }
 ```
 
 ## How it works
 
 1. Annotate a `Specification<T>` method parameter with one or more source annotations:
-   - `@Spec.RequestParam` — query parameter
-   - `@Spec.RequestHeader` — HTTP header
-   - `@Spec.PathVariable` — URI path variable
-   - `@Spec.AccessControl` — security-based, no request value needed
+    - `@Spec.RequestParam` — query parameter
+    - `@Spec.RequestHeader` — HTTP header
+    - `@Spec.PathVariable` — URI path variable
+    - `@Spec.AccessControl` — security-based, no request value needed
 
 
 2. `SpecArgumentResolver`:
-   - Reads the values from the HTTP request or security context.
-   - Converts them using **Spring’s ConversionService**.
-   - Passes them to the chosen operator.
+    - Reads the values from the HTTP request or security context.
+    - Converts them using **Spring’s ConversionService**.
+    - Passes them to the chosen operator.
 
 
 3. An operator implements:
@@ -136,7 +127,9 @@ Use `@Spec.AccessControl` for filters without request input, e.g., enforcing use
 **Example:**
 
 Value Supplier can be a `Supplier<List<String>>` that returns the allowed regions for the current user:
+
 ```java
+
 @Component
 @RequiredArgsConstructor
 class UserAllowedRegions implements Supplier<List<String>> {
@@ -145,7 +138,7 @@ class UserAllowedRegions implements Supplier<List<String>> {
 
     @Override
     public List<String> get() {
-       return userService.getUserAllowedRegions();
+        return userService.getUserAllowedRegions();
     }
 }
 ```
@@ -154,8 +147,8 @@ Usage example:
 
 ```java
 @Spec.AccessControl(
-        path = "organization.region", 
-        valueSupplier = UserAllowedRegions.class, 
+        path = "organization.region",
+        valueSupplier = UserAllowedRegions.class,
         operator = In.class
 )
 ```
