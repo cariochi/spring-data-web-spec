@@ -54,7 +54,15 @@ public class WebConfig {
 
 ```java
 
+import com.cariochi.spec.Spec;
+import com.cariochi.spec.operator.ContainsIgnoreCase;
+import jakarta.persistence.criteria.JoinType;
 import java.awt.print.Pageable;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -68,8 +76,8 @@ class DummyController {
            @Spec.PathVariable(name = "organizationId", path = "organization.id", required = true)
            @Spec.RequestParam(name = "id")
            @Spec.RequestParam(name = "status", operator = In.class)
-           @Spec.RequestParam(name = "name", path = "name", operator = ContainsIgnoreCase.class)
-           @Spec.RequestParam(name = "propertyValue", path = "properties.value", operator = In.class, joinType = JoinType.INNER, distinct = true)
+           @Spec.RequestParam(name = "name", operator = ContainsIgnoreCase.class)
+           @Spec.RequestParam(name = "propertyValue", path = "properties.value", joinType = JoinType.INNER, operator = In.class, distinct = true)
            @Spec.RequestHeader(name = "region", path = "organization.region")
            @Spec.AccessControl(path = "organization.region", valueSupplier = UserAllowedRegions.class, operator = In.class)
            Specification<DummyEntity> specification,
@@ -145,7 +153,11 @@ class UserAllowedRegions implements Supplier<List<String>> {
 Usage example:
 
 ```java
-@Spec.AccessControl(path = "organization.region", valueSupplier = UserAllowedRegions.class, operator = In.class)
+@Spec.AccessControl(
+        path = "organization.region", 
+        valueSupplier = UserAllowedRegions.class, 
+        operator = In.class
+)
 ```
 
 This will automatically restrict queries to allowed regions for the current user.
