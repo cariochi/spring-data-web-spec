@@ -24,7 +24,7 @@ Maven:
 
 # Configuration
 
-## **Spring Boot autoconfiguration (recommended)**
+## Spring Boot autoconfiguration (recommended)
 
 If you use **Spring Boot 3.x** and have **spring-data-web-spec** on the classpath, the`SpecificationArgumentResolver`will be
 auto-registered.
@@ -35,7 +35,7 @@ Autoconfiguration is enabled by default but can be disabled via:
 cariochi.spec.web.enabled=false
 ```
 
-## **Manual registration**
+## Manual registration
 
 If you don’t want to rely on **autoconfiguration** (or you use plain **Spring MVC without Boot**), annotate your
 configuration class:
@@ -123,7 +123,7 @@ public List<Project> findProjects(
 
 ### Custom value resolver
 
-A custom `valueResolver` can be implemented as a Spring bean. For example, resolving allowed regions for the current
+A custom `valueResolver` can be implemented as a **Spring bean**. For example, resolving allowed regions for the current
 user:
 
 ```java
@@ -250,6 +250,6 @@ public List<Project> findProjects(
 }
 ```
 
-# **License**
+# License
 
 The library is licensed under the[Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
