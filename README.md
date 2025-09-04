@@ -26,7 +26,7 @@ Maven:
 
 ## **Spring Boot autoconfiguration (recommended)**
 
-If you use**Spring Boot 3.x**and have**spring-data-web-spec**on the classpath, the`SpecificationArgumentResolver`will be
+If you use **Spring Boot 3.x** and have **spring-data-web-spec** on the classpath, the`SpecificationArgumentResolver`will be
 auto-registered.
 
 Autoconfiguration is enabled by default but can be disabled via:
@@ -37,7 +37,7 @@ cariochi.spec.web.enabled=false
 
 ## **Manual registration**
 
-If you don’t want to rely on**autoconfiguration**(or you use plain**Spring MVC without Boot**), annotate your
+If you don’t want to rely on **autoconfiguration** (or you use plain **Spring MVC without Boot**), annotate your
 configuration class:
 
 ```java
