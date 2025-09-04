@@ -2,12 +2,9 @@ package com.example.app.tests;
 
 import com.cariochi.recordo.mockmvc.RecordoApiClient;
 import com.example.app.main.model.DummyEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RecordoApiClient
 @RequestMapping
@@ -42,5 +39,13 @@ public interface DummyApi {
     List<DummyEntity> findByProperty(
             @RequestParam("propertyKey") String propertyKey,
             @RequestParam("propertyValue") String propertyValue
+    );
+
+    @GetMapping("/dummy/with-expression")
+    List<DummyEntity> findWithExpression(
+            @RequestParam("id") Long id,
+            @RequestParam("status") List<DummyEntity.Status> status,
+            @RequestParam("name") String name,
+            @RequestParam("labels") String labels
     );
 }

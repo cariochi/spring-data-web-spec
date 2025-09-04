@@ -1,7 +1,8 @@
-package com.cariochi.spec.data;
+package com.cariochi.spec.values;
+
+import org.springframework.core.convert.TypeDescriptor;
 
 import java.util.List;
-import org.springframework.core.convert.TypeDescriptor;
 
 import static org.springframework.core.convert.TypeDescriptor.collection;
 

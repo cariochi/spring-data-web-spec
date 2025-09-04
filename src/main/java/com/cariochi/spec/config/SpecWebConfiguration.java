@@ -1,55 +1,62 @@
 package com.cariochi.spec.config;
 
-import com.cariochi.spec.data.MetaPathResolver;
-import com.cariochi.spec.data.PathResolver;
-import com.cariochi.spec.operator.Contains;
-import com.cariochi.spec.operator.ContainsIgnoreCase;
-import com.cariochi.spec.operator.Equal;
-import com.cariochi.spec.operator.GreaterThan;
-import com.cariochi.spec.operator.GreaterThanOrEqualTo;
-import com.cariochi.spec.operator.In;
-import com.cariochi.spec.operator.IsNotNull;
-import com.cariochi.spec.operator.IsNull;
-import com.cariochi.spec.operator.LessThan;
-import com.cariochi.spec.operator.LessThanOrEqualTo;
-import com.cariochi.spec.operator.NotEqual;
-import com.cariochi.spec.operator.NotIn;
-import com.cariochi.spec.operator.StartWith;
-import com.cariochi.spec.operator.StartWithIgnoreCase;
-import com.cariochi.spec.web.SpecArgumentResolver;
-import java.util.List;
+import com.cariochi.spec.SpecificationArgumentResolver;
+import com.cariochi.spec.attributes.AttributeResolver;
+import com.cariochi.spec.attributes.MetaAttributeResolver;
+import com.cariochi.spec.operator.*;
+import com.cariochi.spec.values.HeaderValueResolver;
+import com.cariochi.spec.values.ParamValueResolver;
+import com.cariochi.spec.values.PathValueResolver;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class SpecWebConfiguration {
 
     @Bean
-    public SpecArgumentResolver specArgumentResolver(AutowireCapableBeanFactory beanFactory) {
-        return new SpecArgumentResolver(beanFactory);
+    public SpecificationArgumentResolver specArgumentResolver(AutowireCapableBeanFactory beanFactory) {
+        return new SpecificationArgumentResolver(beanFactory);
     }
 
     @Bean
-    public WebMvcConfigurer specWebMvcConfigurer(SpecArgumentResolver specArgumentResolver) {
+    public WebMvcConfigurer specWebMvcConfigurer(SpecificationArgumentResolver specificationArgumentResolver) {
         return new WebMvcConfigurer() {
             @Override
             public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-                boolean alreadyAdded = resolvers.stream().anyMatch(r -> r.getClass() == specArgumentResolver.getClass());
+                boolean alreadyAdded = resolvers.stream().anyMatch(r -> r.getClass() == specificationArgumentResolver.getClass());
                 if (!alreadyAdded) {
-                    resolvers.add(specArgumentResolver);
+                    resolvers.add(specificationArgumentResolver);
                 }
             }
         };
     }
 
     @Bean
-    @ConditionalOnMissingBean(PathResolver.class)
-    public <T, V> PathResolver<T, V> pathResolver() {
-        return new MetaPathResolver<>();
+    @ConditionalOnMissingBean(AttributeResolver.class)
+    public <T, V> AttributeResolver<T, V> attributeResolver() {
+        return new MetaAttributeResolver<>();
+    }
+
+    @Bean
+    public PathValueResolver pathValueResolver(WebRequest webRequest) {
+        return new PathValueResolver(webRequest);
+    }
+
+    @Bean
+    public ParamValueResolver paramValueResolver(WebRequest webRequest) {
+        return new ParamValueResolver(webRequest);
+    }
+
+    @Bean
+    public HeaderValueResolver headerValueResolver(WebRequest webRequest) {
+        return new HeaderValueResolver(webRequest);
     }
 
     @Bean

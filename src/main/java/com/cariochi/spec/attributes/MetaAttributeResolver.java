@@ -1,25 +1,16 @@
-package com.cariochi.spec.data;
+package com.cariochi.spec.attributes;
 
-import jakarta.persistence.criteria.From;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.MapJoin;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.metamodel.Attribute;
-import jakarta.persistence.metamodel.ManagedType;
-import jakarta.persistence.metamodel.MapAttribute;
-import jakarta.persistence.metamodel.PluralAttribute;
-import jakarta.persistence.metamodel.SingularAttribute;
-import jakarta.persistence.metamodel.Type;
-import java.util.Optional;
+import jakarta.persistence.criteria.*;
+import jakarta.persistence.metamodel.*;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.split;
 
 @RequiredArgsConstructor
-public final class MetaPathResolver<T, Y> implements PathResolver<T, Y> {
+public final class MetaAttributeResolver<T, Y> implements AttributeResolver<T, Y> {
 
     @Override
     public Path<Y> resolve(Root<T> root, String dottedPath, JoinType joinType) {
