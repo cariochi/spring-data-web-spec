@@ -1,8 +1,8 @@
 # Overview
 
 **Spring Data Web Spec** is a small **open-source** library that maps HTTP request data
-(**query params**, **headers**, **path variables**, plus optional access-control inputs)
-into Spring Data JPA **Specifications** using concise annotations on controller method parameters.
+(**query params**, **headers**, **path variables**, plus optional **access-control** inputs)
+into **Spring Data JPA Specifications** using concise annotations on controller method parameters.
 
 * Declare filters directly in controller signatures
 * Integrates seamlessly with **Spring MVC** and **Spring Data JPA**
@@ -177,9 +177,9 @@ public List<DummyEntity> findProjects(
   (e.g., `(id OR name) AND (status OR labels)` with only `id` present simplifies to `id`).
 * `strict = true`: an exception is thrown if the expression references an alias with no corresponding specification.
 
-# Built-in operators
+# Operators
 
-By default the library provides a set of operator beans:
+By default the library provides a set of built-in operator beans:
 
 * equality/inequality: `Equal`, `NotEqual`
 * membership: `In`, `NotIn`
@@ -187,9 +187,9 @@ By default the library provides a set of operator beans:
 * null checks: `IsNull`, `IsNotNull`
 * comparison: `GreaterThan`, `GreaterThanOrEqualTo`, `LessThan`, `LessThanOrEqualTo`
 
-In addition to the built-in set, you can define your own operators and use them in annotations just like the provided
-ones. Custom operators are classes that implement the `Operator` interface. They are managed as Spring beans and can be
-injected or created automatically by Spring.&#x20;
+In addition to the built-in set, you can define your **own operators** and use them in annotations just like the provided
+ones. **Custom operators** are classes that implement the `Operator` interface. They are managed as **Spring beans** and can be
+injected or created automatically by Spring.
 
 # Examples
 
