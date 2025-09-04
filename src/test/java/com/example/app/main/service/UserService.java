@@ -1,12 +1,13 @@
 package com.example.app.main.service;
 
-import java.util.List;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 @Service
 public class UserService {
 
-    public List<String> getAllowedRegions() {
-        return List.of("US", "EU");
+    public Set<String> getAllowedRegions() {
+        return Set.of("US", "EU");
     }
 }

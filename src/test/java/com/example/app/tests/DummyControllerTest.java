@@ -5,13 +5,14 @@ import com.cariochi.recordo.core.RecordoExtension;
 import com.example.app.main.TestApp;
 import com.example.app.main.model.DummyEntity;
 import com.example.app.main.model.Organization;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+
+import java.util.List;
 
 import static com.example.app.main.model.DummyEntity.Status.FAILED;
 import static com.example.app.main.model.DummyEntity.Status.STOPPED;
@@ -91,5 +92,19 @@ class DummyControllerTest {
         assertThat(entities).hasSize(2)
                 .extracting(DummyEntity::getId)
                 .containsOnly(101L, 103L);
+    }
+
+    @Test
+    void should_find_with_expression() {
+        assertThat(api.findWithExpression(101L, null, null, null))
+                .extracting(DummyEntity::getId)
+                .containsOnly(101L);
+
+        assertThat(api.findWithExpression(null, null, null, "test"))
+                .hasSize(5);
+
+        assertThat(api.findWithExpression(103L, List.of(FAILED), "beta", "test"))
+                .extracting(DummyEntity::getId)
+                .containsOnly(103L, 105L);
     }
 }

@@ -1,4 +1,4 @@
-package com.cariochi.spec.data;
+package com.cariochi.spec.values;
 
 import org.springframework.core.convert.TypeDescriptor;
 

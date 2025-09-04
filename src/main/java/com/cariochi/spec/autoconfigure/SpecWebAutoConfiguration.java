@@ -1,7 +1,7 @@
 package com.cariochi.spec.autoconfigure;
 
+import com.cariochi.spec.SpecificationArgumentResolver;
 import com.cariochi.spec.config.SpecWebConfiguration;
-import com.cariochi.spec.web.SpecArgumentResolver;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -12,7 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @AutoConfiguration
-@ConditionalOnMissingBean(SpecArgumentResolver.class)
+@ConditionalOnMissingBean(SpecificationArgumentResolver.class)
 @ConditionalOnClass({WebMvcConfigurer.class, Specification.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnProperty(prefix = "cariochi.spec.web", name = "enabled", havingValue = "true", matchIfMissing = true)
